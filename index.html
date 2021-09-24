@@ -1,0 +1,47 @@
+    <script type="module"> /* file encryption/decryption */
+        document.addEventListener('DOMContentLoaded', function(event) {
+            document.getElementById('src-file').onchange = function() {
+                const file = this.files[0];
+                document.querySelector('#progress').removeAttribute('value');
+                const t1 = performance.now();
+                var reader = new FileReader();
+                reader.readAsText(file, 'utf-8');
+                reader.onload = function() {
+                document.querySelector('#progress').value = 100;
+                var password = document.querySelector('#password').value;
+                var bits = 256;
+                var plaintext = reader.result;
+                var ciphertext = AesCtr.encrypt(plaintext, password, bits);
+                var blob = new Blob([ciphertext], { type: 'text/plain' });
+                saveAs(blob, file.name + '.enc');
+                document.querySelector('#progress').value = 0;
+                const t2 = performance.now();
+                const t = ((t2-t1)/1000).toFixed(3)+'s';
+                document.querySelector('#decrypt-file-time').textContent = t;
+                }
+    }
+    
+            document.querySelector('#enc-file').onchange = function() {
+                const file = this.files[0];
+                document.querySelector('#progress').removeAttribute('value');
+                const t1 = performance.now();
+                var reader = new FileReader();
+                reader.readAsText(file, 'iso-8859-1');
+                reader.onload = function() {
+                document.querySelector('#progress').value = 100;
+                var password = document.querySelector('#password').value;
+                var bits = 256;
+                var ciphertext = reader.result;
+                var plaintext = AesCtr.decrypt(ciphertext, password, bits);
+                var blob = new Blob([plaintext], {type: 'application/octet-stream' });
+                saveAs(blob, file.name.replace(/\.enc$/,''));
+                document.querySelector('#progress').value = 0;
+                const t2 = performance.now();
+                const t = ((t2-t1)/1000).toFixed(3)+'s';
+                document.querySelector('#decrypt-file-time').textContent = t;
+                }           
+
+            }
+           
+        });
+    </script>
